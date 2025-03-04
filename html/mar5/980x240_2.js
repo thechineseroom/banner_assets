@@ -75,7 +75,7 @@ if (reversed == null) { reversed = false; }
 	cjs.MovieClip.apply(this,[props]);
 
 	// Layer_1
-	this.text4test = new cjs.Text("Var med och gör skillnad – på riktigt.", "bold 29px 'CircularXX'", "#FFFFFF");
+	this.text4test = new cjs.Text("Var med och gör skillnad för en bättre arbetsmiljö \n– på riktigt.", "bold 29px 'CircularXX'", "#FFFFFF");
 	this.text4test.name = "text4test";
 	this.text4test.lineHeight = 31;
 	this.text4test.lineWidth = 353;
