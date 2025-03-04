@@ -349,12 +349,15 @@ if (reversed == null) { reversed = false; }
 		
 		// 🔹 ClickArea - gör hela bannern klickbar
 		this.clickArea.cursor = "pointer";
+		// 🔹 Vänta tills `clickTag` är korrekt satt innan vi lyssnar på klick
 		this.clickArea.addEventListener("click", function() {
-		    if (typeof window.clickTag !== "undefined" && window.clickTag !== "") {
-		        window.open(window.clickTag, "_blank");
-		    } else {
-		        console.log("Ingen clickTag definierad av annonsservern.");
+		    if (!window.clickTag || window.clickTag === "undefined" || window.clickTag === "") {
+		        console.log("Ingen clickTag definierad, sätter en fallback.");
+		        window.clickTag = "https://www.dittföretag.se"; // Sätt en default-URL
 		    }
+		
+		    console.log("Click event registrerat! Går till:", window.clickTag);
+		    window.open(window.clickTag, "_blank");
 		});
 		
 		// 🔹 Se till att hela ytan är klickbar
