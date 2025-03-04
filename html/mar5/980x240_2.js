@@ -380,7 +380,7 @@ if (reversed == null) { reversed = false; }
 
 	this.clickArea = new lib.ClickButton();
 	this.clickArea.name = "clickArea";
-	this.clickArea.setTransform(268.45,802.45,0.9889,0.96,0,0,0,255.4,562.5);
+	this.clickArea.setTransform(252.55,540,0.9889,0.96,0,0,0,255.4,562.5);
 	new cjs.ButtonHelper(this.clickArea, 0, 1, 1);
 
 	this.instance = new lib.WhiteborderMC();
@@ -402,7 +402,7 @@ if (reversed == null) { reversed = false; }
 	this._renderFirstFrame();
 
 }).prototype = p = new lib.AnMovieClip();
-p.nominalBounds = new cjs.Rectangle(490,120,505.9,382.5);
+p.nominalBounds = new cjs.Rectangle(490,120,490,186);
 // library properties:
 lib.properties = {
 	id: 'FE62A4A6F090493DA9DC5A50C4BF5FA9',
