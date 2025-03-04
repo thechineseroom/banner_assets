@@ -14,7 +14,17 @@
 <title>980x240_2</title>
 <!-- write your code here -->
 <script type="text/javascript">
-    var clickTag = "";
+    function getClickTag() {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('clickTag') || "https://www.säkerhetsparken.se"; // Sätt en default-URL om inget annat finns
+    }
+
+    // Kolla om `clickTag` redan är definierad av annonsservern, annars sätt den
+    if (typeof window.clickTag === "undefined" || window.clickTag === "") {
+        window.clickTag = getClickTag();
+    }
+
+    console.log("clickTag satt till:", window.clickTag);
 </script>
 <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
 <script src="980x240_2.js?1741083399388"></script>
