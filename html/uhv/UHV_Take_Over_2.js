@@ -840,27 +840,35 @@ if (reversed == null) { reversed = false; }
 		
 		var scope = this;
 		
-		img.onload = function() {
+		img.onload = function () {
 		    console.log("Bild laddad!", img.width, img.height);
 		
+		    // Vänta ett ögonblick för säkerhets skull
 		    setTimeout(() => {
 		        var bgBitmap = new createjs.Bitmap(img);
 		
-		        // Sätt registreringspunkt i mitten
-		        bgBitmap.regX = 1920 / 2;
-				bgBitmap.regY = 1080 / 2;
+		        // 🔹 Placera övre vänstra hörnet så att bilden centreras på canvasen
+		        bgBitmap.setTransform(
+		            (stage.canvas.width - img.width) / 2,
+		            (stage.canvas.height - img.height) / 2
+		        );
 		
-		        // Placera mitten av bilden i mitten av canvasen
-		        bgBitmap.x = stage.canvas.width / 2;
-		        bgBitmap.y = stage.canvas.height / 2;
+		        // 🔹 Flytta ankarpunkten till mitten
+		        bgBitmap.regX = img.width / 2;
+		        bgBitmap.regY = img.height / 2;
 		
+		        // 🔹 Justera x och y eftersom vi flyttat ankarpunkten
+		        bgBitmap.x += img.width / 2;
+		        bgBitmap.y += img.height / 2;
+		
+		        // 🔹 Lägg till bilden i bakgrundscontainern
 		        scope.bg.removeAllChildren();
 		        scope.bg.addChild(bgBitmap);
 		
+		        // 🔹 Spara referens och starta zoom
 		        scope.bgBitmap = bgBitmap;
 		        startZoom.call(scope);
-		    }, 0); // <- låter browsern rendera ett "tick" först
-		console.log("Drööööjer2");
+		    }, 0);
 		};
 		
 		img.onerror = function() {
