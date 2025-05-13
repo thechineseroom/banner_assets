@@ -847,8 +847,8 @@ if (reversed == null) { reversed = false; }
 		        var bgBitmap = new createjs.Bitmap(img);
 		
 		        // Sätt registreringspunkt i mitten
-		        bgBitmap.regX = img.width / 2;
-		        bgBitmap.regY = img.height / 2;
+		        bgBitmap.regX = 1920 / 2;
+				bgBitmap.regY = 1080 / 2;
 		
 		        // Placera mitten av bilden i mitten av canvasen
 		        bgBitmap.x = stage.canvas.width / 2;
