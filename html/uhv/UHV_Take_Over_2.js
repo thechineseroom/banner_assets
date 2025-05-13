@@ -860,7 +860,7 @@ if (reversed == null) { reversed = false; }
 		        scope.bgBitmap = bgBitmap;
 		        startZoom.call(scope);
 		    }, 0); // <- låter browsern rendera ett "tick" först
-		console.log("Drööööjer");
+		console.log("Drööööjer2");
 		};
 		
 		img.onerror = function() {
