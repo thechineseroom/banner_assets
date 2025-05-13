@@ -843,31 +843,25 @@ if (reversed == null) { reversed = false; }
 		img.onload = function () {
 		    console.log("Bild laddad!", img.width, img.height);
 		
-		    // Vänta en kort stund för att försäkra att canvasens mått är uppdaterade
 		    setTimeout(() => {
 		        const bgBitmap = new createjs.Bitmap(img);
 		
-		        // 🔹 Sätt registreringspunkten i mitten av bilden
 		        bgBitmap.regX = img.width / 2;
 		        bgBitmap.regY = img.height / 2;
 		
-		        // 🔹 Placera bilden i mitten av canvasen
-		        const canvasW = stage.canvas.width;
-		        const canvasH = stage.canvas.height;
+		        const pixelRatio = window.devicePixelRatio || 1;
+		        const canvasW = stage.canvas.width / pixelRatio;
+		        const canvasH = stage.canvas.height / pixelRatio;
 		
 		        bgBitmap.x = canvasW / 2;
 		        bgBitmap.y = canvasH / 2;
 		
-		        // 🔹 Logga allt för felsökning
-		        console.log("Canvasstorlek:", canvasW, canvasH);
+		        console.log("Canvas (visuell):", canvasW, canvasH);
 		        console.log("bgBitmap x/y:", bgBitmap.x, bgBitmap.y);
-		        console.log("bgBitmap regX/regY:", bgBitmap.regX, bgBitmap.regY);
 		
-		        // 🔹 Rensa bakgrunden och lägg in bilden
 		        scope.bg.removeAllChildren();
 		        scope.bg.addChild(bgBitmap);
 		
-		        // 🔹 Spara referens och starta zoom
 		        scope.bgBitmap = bgBitmap;
 		        startZoom.call(scope);
 		    }, 0);
