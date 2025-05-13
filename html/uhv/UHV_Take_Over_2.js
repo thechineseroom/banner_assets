@@ -843,25 +843,27 @@ if (reversed == null) { reversed = false; }
 		img.onload = function () {
 		    console.log("Bild laddad!", img.width, img.height);
 		
-		    // Vänta ett ögonblick för säkerhets skull
+		    // Vänta en kort stund för att försäkra att canvasens mått är uppdaterade
 		    setTimeout(() => {
-		        var bgBitmap = new createjs.Bitmap(img);
+		        const bgBitmap = new createjs.Bitmap(img);
 		
-		        // 🔹 Placera övre vänstra hörnet så att bilden centreras på canvasen
-		        bgBitmap.setTransform(
-		            (stage.canvas.width - img.width) / 2,
-		            (stage.canvas.height - img.height) / 2
-		        );
-		
-		        // 🔹 Flytta ankarpunkten till mitten
+		        // 🔹 Sätt registreringspunkten i mitten av bilden
 		        bgBitmap.regX = img.width / 2;
 		        bgBitmap.regY = img.height / 2;
 		
-		        // 🔹 Justera x och y eftersom vi flyttat ankarpunkten
-		        bgBitmap.x += img.width / 2;
-		        bgBitmap.y += img.height / 2;
+		        // 🔹 Placera bilden i mitten av canvasen
+		        const canvasW = stage.canvas.width;
+		        const canvasH = stage.canvas.height;
 		
-		        // 🔹 Lägg till bilden i bakgrundscontainern
+		        bgBitmap.x = canvasW / 2;
+		        bgBitmap.y = canvasH / 2;
+		
+		        // 🔹 Logga allt för felsökning
+		        console.log("Canvasstorlek:", canvasW, canvasH);
+		        console.log("bgBitmap x/y:", bgBitmap.x, bgBitmap.y);
+		        console.log("bgBitmap regX/regY:", bgBitmap.regX, bgBitmap.regY);
+		
+		        // 🔹 Rensa bakgrunden och lägg in bilden
 		        scope.bg.removeAllChildren();
 		        scope.bg.addChild(bgBitmap);
 		
