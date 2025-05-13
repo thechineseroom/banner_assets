@@ -793,29 +793,6 @@ if (reversed == null) { reversed = false; }
 p.nominalBounds = new cjs.Rectangle(0,0,991,250);
 
 
-(lib.BlubackgroundMC = function(mode,startPosition,loop,reversed) {
-if (loop == null) { loop = true; }
-if (reversed == null) { reversed = false; }
-	var props = new Object();
-	props.mode = mode;
-	props.startPosition = startPosition;
-	props.labels = {};
-	props.loop = loop;
-	props.reversed = reversed;
-	cjs.MovieClip.apply(this,[props]);
-
-	// Layer_1
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#1B4B6F").s().p("EggQASwMAAAglfMBAhAAAMAAAAlfg");
-	this.shape.setTransform(206.5,120);
-
-	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1));
-
-	this._renderFirstFrame();
-
-}).prototype = getMCSymbolPrototype(lib.BlubackgroundMC, new cjs.Rectangle(0,0,413,240), null);
-
-
 // stage content:
 (lib.UHV_Take_Over_2 = function(mode,startPosition,loop,reversed) {
 if (loop == null) { loop = true; }
@@ -963,7 +940,7 @@ if (reversed == null) { reversed = false; }
 	// Layer_1
 	this.clickArea = new lib.ClickButton();
 	this.clickArea.name = "clickArea";
-	this.clickArea.setTransform(613.5,1750.05,1.9375,4.32,0,0,0,255.3,125);
+	this.clickArea.setTransform(494.65,540,1.9375,4.32,0,0,0,255.3,125);
 	new cjs.ButtonHelper(this.clickArea, 0, 1, 1);
 
 	this.instance = new lib.WhiteborderMC();
@@ -977,15 +954,12 @@ if (reversed == null) { reversed = false; }
 	this.text1.name = "text1";
 	this.text1.setTransform(27.7,124.45,1,1,0,0,0,-42,-49);
 
-	this.instance_1 = new lib.BlubackgroundMC();
-	this.instance_1.setTransform(-696.9,540,2.7337,4.5,0,0,0,206.6,120);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.instance_1},{t:this.text1},{t:this.text2},{t:this.instance},{t:this.clickArea}]}).wait(1));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.text1},{t:this.text2},{t:this.instance},{t:this.clickArea}]}).wait(1));
 
 	this._renderFirstFrame();
 
 }).prototype = p = new lib.AnMovieClip();
-p.nominalBounds = new cjs.Rectangle(-301.7,540,2674,1750.1);
+p.nominalBounds = new cjs.Rectangle(960,540,1412.3000000000002,540);
 // library properties:
 lib.properties = {
 	id: 'FE62A4A6F090493DA9DC5A50C4BF5FA9',
