@@ -840,6 +840,51 @@ if (reversed == null) { reversed = false; }
 		
 		var scope = this;
 		
+		img.onload = function() {
+		    console.log("Bild laddad!", img.width, img.height);
+		
+		    setTimeout(() => {
+		        var bgBitmap = new createjs.Bitmap(img);
+		
+		        // Sätt registreringspunkt i mitten
+		        bgBitmap.regX = img.width / 2;
+		        bgBitmap.regY = img.height / 2;
+		
+		        // Placera mitten av bilden i mitten av canvasen
+		        bgBitmap.x = stage.canvas.width / 2;
+		        bgBitmap.y = stage.canvas.height / 2;
+		
+		        scope.bg.removeAllChildren();
+		        scope.bg.addChild(bgBitmap);
+		
+		        scope.bgBitmap = bgBitmap;
+		        startZoom.call(scope);
+		    }, 0); // <- låter browsern rendera ett "tick" först
+		};
+		
+		img.onerror = function() {
+		    console.log("Fel: Kunde inte ladda bilden.");
+		};
+		
+		function startZoom() {
+		    var bg = this.bgBitmap;
+		
+		    if (!bg) {
+		        console.log("Ingen bakgrundsbild hittad!");
+		        return;
+		    }
+		
+		    // 🔁 Zooma in och tillbaka i evig loop
+		    function zoomLoop() {
+		        createjs.Tween.get(bg)
+		            .to({ scaleX: 1.08, scaleY: 1.08 }, 10000, createjs.Ease.quadInOut)
+		            .to({ scaleX: 1.0, scaleY: 1.0 }, 10000, createjs.Ease.quadInOut)
+		            .call(zoomLoop);
+		    }
+		
+		    zoomLoop();
+		};
+		
 		function laddaLoggor(scope) {
 		    const loggor = [
 		        {
@@ -866,52 +911,6 @@ if (reversed == null) { reversed = false; }
 		    });
 		}
 		laddaLoggor(this);
-		
-		img.onload = function() {
-		    console.log("Bild laddad!");
-		    var bgBitmap = new createjs.Bitmap(img);
-		
-		    // 🔹 Sätt registreringspunkt i mitten
-		    bgBitmap.regX = img.width / 2;
-		    bgBitmap.regY = img.height / 2;
-		
-		    // 🔹 Placera bilden i mitten av scenen
-		    bgBitmap.x = stage.canvas.width / 2;
-		    bgBitmap.y = stage.canvas.height / 2;
-		
-		    // 🔹 Rensa container och lägg till bild
-		    scope.bg.removeAllChildren();
-		    scope.bg.addChild(bgBitmap);
-		
-		    // 🔹 Spara referens till senare tween
-		    scope.bgBitmap = bgBitmap;
-		
-		    // 🔹 Starta zoomen
-		    startZoom.call(scope);
-		};
-		
-		img.onerror = function() {
-		    console.log("Fel: Kunde inte ladda bilden.");
-		};
-		
-		function startZoom() {
-		    var bg = this.bgBitmap;
-		
-		    if (!bg) {
-		        console.log("Ingen bakgrundsbild hittad!");
-		        return;
-		    }
-		
-		    // 🔁 Zooma in och tillbaka i evig loop
-		    function zoomLoop() {
-		        createjs.Tween.get(bg)
-		            .to({ scaleX: 1.08, scaleY: 1.08 }, 10000, createjs.Ease.quadInOut)
-		            .to({ scaleX: 1.0, scaleY: 1.0 }, 10000, createjs.Ease.quadInOut)
-		            .call(zoomLoop);
-		    }
-		
-		    zoomLoop();
-		};
 		
 		
 		
