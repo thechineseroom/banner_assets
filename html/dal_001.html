@@ -3,47 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="authoring-tool" content="Adobe_Animate_CC" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>dal_001</title>
 
-  <!-- Preload (snabbare visning) -->
-  <link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1" as="font" type="font/woff2" crossorigin>
+<!-- Preload (snabbare visning) -->
+<link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1" as="font" type="font/woff2" crossorigin>
 
-  <style>
-    /* Webfonter – namn måste matcha vad Animate visar i console.log */
-    @font-face {
-      font-family: 'CircularXX Black';
-      src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1') format('woff2'),
-           url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff?v=1') format('woff');
-      font-weight: 900; font-style: normal; font-display: swap;
-    }
-    @font-face {
-      font-family: 'CircularXX Medium';
-      src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1') format('woff2'),
-           url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff?v=1') format('woff');
-      font-weight: 500; font-style: normal; font-display: swap;
-    }
+<style>
+  /* Måste matcha exakt det Animate visar i console.log */
+  @font-face {
+    font-family: 'CircularXX Black';
+    src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1') format('woff2'),
+         url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff?v=1') format('woff');
+    font-weight: 900; font-style: normal; font-display: swap;
+  }
 
-    html, body { height: 100%; margin: 0; background: #fff; }
-    /* Gör container och overlay absolut-positionerade; makeResponsive skalar dem tillsammans */
-    #animation_container, #dom_overlay_container, canvas {
-      position: absolute; left: 0; top: 0;
-    }
-    /* Låt containern fylla viewport – makeResponsive skalar canvas till att passa */
-    #animation_container {
-      width: 100%;
-      height: 100%;
-      background: #ffffff;
-      overflow: hidden;
-    }
-  </style>
+  @font-face {
+    font-family: 'CircularXX Medium';
+    src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1') format('woff2'),
+         url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff?v=1') format('woff');
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
 
-  <!-- CreateJS + din Animate-export -->
+  body { margin:0; background:#fff; }
+</style>
+
+  <!-- 2) CreateJS + din Animate-export -->
   <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
   <script src="dal_001.js"></script>
 
-  <!-- Animate bootstrap -->
+  <!-- 3) Animate bootstrap -->
   <script>
     var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
 
@@ -51,7 +40,9 @@
       canvas = document.getElementById("canvas");
       anim_container = document.getElementById("animation_container");
       dom_overlay_container = document.getElementById("dom_overlay_container");
-      var comp = AdobeAn.getComposition("E70EBF7283014CCAA194A267093E2191");
+      var comp = AdobeAn.getComposition("E70EBF7283014CCAA194A267093E2191"); // samma ID som i din export
+      var lib = comp.getLibrary();
+
       handleComplete({}, comp);
     }
 
@@ -66,30 +57,23 @@
         createjs.Ticker.addEventListener("tick", stage);
       };
 
-      /* RESPONSIV SKALNING
-         responsive = true
-         dimension = 'both'
-         isScale = true (skala canvas)
-         scaleType = 1 => "contain" (hela bannern syns, letterbox vid mismatch)
-         Vill du "cover" istället (fyller ytan, kan beskäras): byt 1 till 2.
-      */
-      AdobeAn.makeResponsive(
-        true, 'both', true, 2,
-        [canvas, anim_container, dom_overlay_container]
-      );
-
+      // Responsiv: av enligt din mall (behåll så om du kör fasta px-format)
+      AdobeAn.makeResponsive(false, 'both', false, 1, [canvas, anim_container, dom_overlay_container]);
       AdobeAn.compositionLoaded(lib.properties.id);
+
+      // Starta animationen direkt; din FLA-kod väntar själv på document.fonts.ready
       fnStartAnimation();
     }
   </script>
 </head>
 
 <body onload="init();">
-  <!-- Viktigt: behåll originalstorlek på canvas-attributen (design size).
-       makeResponsive använder dem som bas för skalning. -->
-  <div id="animation_container">
-    <canvas id="canvas" width="1920" height="1080" style="display:block; background:#ffffff;"></canvas>
-    <div id="dom_overlay_container"></div>
+  <div id="animation_container" style="width:1920px; height:1080px; position:relative; background:#ffffff;">
+    <canvas id="canvas" width="1920" height="1080"
+            style="position:absolute; display:block; background:#ffffff;"></canvas>
+    <div id="dom_overlay_container"
+         style="pointer-events:none; overflow:hidden; width:1920px; height:1080px; position:absolute; left:0; top:0; display:block;">
+    </div>
   </div>
 </body>
 </html>

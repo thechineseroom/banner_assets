@@ -145,8 +145,6 @@ if (reversed == null) { reversed = false; }
 		   ========== */
 		const stageW = this.stage.canvas.width;
 		const stageH = this.stage.canvas.height;
-		const numFields = 5;
-		const fieldW = stageW / numFields;
 		
 		const hasHeadline = !!(this.headline && this.headline.txt);
 		const hasSubline  = !!(this.subline  && this.subline.txt);
@@ -154,67 +152,48 @@ if (reversed == null) { reversed = false; }
 		const warn = (msg) => { try { console.warn(msg); } catch(e){} };
 		
 		/* =========================
-		   1) Bakgrund: 5 vertikala fält
+		   1) Bakgrund: EN färg (en rektangel)
 		   ========================= */
-		this.bgFields = new createjs.Container();
-		this.addChildAt(this.bgFields, 0);
-		this.fields = [];
-		
-		for (let i = 0; i < numFields; i++) {
-		  const s = new createjs.Shape();
-		  s.graphics.beginFill("#CCCCCC").drawRect(0, 0, fieldW, stageH);
-		  s.x = i * fieldW;
-		  this.bgFields.addChild(s);
-		  this.fields.push(s);
-		}
+		this.bg = new createjs.Shape();
+		this.bg.graphics.beginFill("#CCCCCC").drawRect(0, 0, stageW, stageH);
+		this.addChildAt(this.bg, 0);
 		
 		/* ====================================
-		   2) Teams: färgset (5 färger per lag)
+		   2) Team-styles: bg + text + logo per lag
 		   ==================================== */
-		this.teams = {
-		  aik:         ["#000000", "#000000", "#000000", "#000000", "#000000"],
-		  dif:         ["#002F6C", "#A6192E", "#F3BD00", "#002F6C", "#A6192E"],
-		  hammarby:    ["#009A44", "#FFFFFF", "#009A44", "#FFFFFF", "#009A44"],
-		  malmoFF:     ["#6EC1E4", "#FFFFFF", "#6EC1E4", "#FFFFFF", "#6EC1E4"],
-		  ifkgoteborg: ["#1B459D", "#FFFFFF", "#1B459D", "#FFFFFF", "#1B459D"],
-		  elfsborg:    ["#FFCC00", "#000000", "#FFCC00", "#000000", "#FFCC00"],
-		  hacken:      ["#F7D117", "#000000", "#F7D117", "#000000", "#F7D117"],
-		  norrkoping:  ["#0057B8", "#FFFFFF", "#0057B8", "#FFFFFF", "#0057B8"],
-		  kalmar:      ["#D50032", "#FFFFFF", "#D50032", "#FFFFFF", "#D50032"],
-		  mjallby:     ["#FFD100", "#000000", "#FFD100", "#000000", "#FFD100"],
-		  sirius:      ["#0072CE", "#000000", "#0072CE", "#000000", "#0072CE"],
-		};
-		
-		/* ============================================
-		   3) Textfärger för headline och subline per lag
-		   ============================================ */
-		this.textColors = {
-		  aik:       { headline: "#FFEC25", subline: "#FFEC25" },
-		  dif:       { headline: "#002F6C", subline: "#FFD700" },
-		  hammarby:  { headline: "#009A44", subline: "#FFFFFF" },
-		  malmoFF:   { headline: "#6EC1E4", subline: "#000000" },
-		  ifkgoteborg:{ headline: "#1B459D", subline: "#FFD700" },
-		  elfsborg:  { headline: "#FFCC00", subline: "#000000" },
-		  hacken:    { headline: "#F7D117", subline: "#000000" },
-		  norrkoping:{ headline: "#0057B8", subline: "#FFFFFF" },
-		  kalmar:    { headline: "#D50032", subline: "#FFFFFF" },
-		  mjallby:   { headline: "#FFD100", subline: "#000000" },
-		  sirius:    { headline: "#0072CE", subline: "#FFFFFF" }
+		this.teamStyles = {
+		  //aik:         { bg:"#000000", headline:"#FFEC25", subline:"#FFEC25", logo:"#FFEC25" },
+		  dif:         { bg:"#000245", headline:"#63c2ed", subline:"#63c2ed", logo:"#63c2ed" },
+		  hammarby:    { bg:"#448a57", headline:"#FFFFFF", subline:"#FFFFFF", logo:"#f6c747" },
+		  sirius:      { bg:"#000000", headline:"#4b83b2", subline:"#4b83b2", logo:"#f8d351" },
+		  bp:          { bg:"#de4d41", headline:"#000000", subline:"#000000", logo:"#d2ad5a" },
+		  ifkgoteborg: { bg:"#2253b3", headline:"#FFFFFF", subline:"#FFFFFF", logo:"#f2af47" },
+		  gais:        { bg:"#428555", headline:"#000000", subline:"#000000", logo:"#f9dd53" },
+		  hacken:      { bg:"#000000", headline:"#edd74c", subline:"#edd74c", logo:"#edd74c" },
+		  //norrkoping:  { bg:"#0057B8", headline:"#0057B8", subline:"#FFFFFF", logo:"#FFFFFF" },
+		  //kalmar:      { bg:"#D50032", headline:"#D50032", subline:"#FFFFFF", logo:"#FFFFFF" },
+		  //mjallby:     { bg:"#FFD100", headline:"#FFD100", subline:"#000000", logo:"#000000" },
 		};
 		
 		/* ============================
-		   4) Styla och positionera text
+		   3) Styla och positionera text (riktig centrering)
 		   ============================ */
 		if (hasHeadline) {
 		  this.headline.txt.text = "Vi är\ndin andra\nklubb";
 		  this.headline.txt.textAlign = "center";
+		  this.headline.txt.x = 0;                  // centrera runt 0
+		  this.headline.txt.y = 0;
 		  this.headline.txt.font = "bold 120px 'CircularXX Black'";
 		  this.headline.txt.multiline = true;
 		  this.headline.txt.lineWidth = Math.round(stageW * 0.9);
 		  this.headline.txt.lineHeight = 120;
-		  this.headline.x = stageW / 2;
-		  this.headline.y = Math.round(stageH * 0.13);
-		  this.headline.shadow = new createjs.Shadow("rgba(0,0,0,0.25)", 0, 2, 6);
+		
+		  this.headline.regX = 0;                   // låt MC ha reg vid (0,0)
+		  this.headline.regY = 0;
+		  this.headline.x = stageW / 2;             // placera MC i mitten
+		  this.headline.y = Math.round(stageH * 0.1);
+		
+		  //this.headline.shadow = new createjs.Shadow("rgba(0,0,0,0.25)", 0, 2, 6);
 		} else {
 		  warn("Saknar instans 'headline' eller 'headline.txt' på scenen.");
 		}
@@ -225,19 +204,25 @@ if (reversed == null) { reversed = false; }
 		    "Är du en schysst byggare är vår klubb också din klubb.\n" +
 		    "Du kommer aldrig att stå ensam.";
 		  this.subline.txt.textAlign = "center";
+		  this.subline.txt.x = 0;                   // centrera runt 0
+		  this.subline.txt.y = 0;
 		  this.subline.txt.font = "28px 'CircularXX Medium'";
 		  this.subline.txt.multiline = true;
 		  this.subline.txt.lineWidth = Math.round(stageW * 0.9);
 		  this.subline.txt.lineHeight = 32;
-		  this.subline.x = stageW / 2;
-		  this.subline.y = (this.headline ? this.headline.y + 350 : Math.round(stageH * 0.3));
-		  this.subline.shadow = new createjs.Shadow("rgba(0,0,0,0.15)", 0, 1, 4);
+		
+		  this.subline.regX = 0;                    // låt MC ha reg vid (0,0)
+		  this.subline.regY = 0;
+		  this.subline.x = stageW / 2;              // placera MC i mitten
+		  this.subline.y = (this.headline ? this.headline.y + 420 : Math.round(stageH * 0.3));
+		
+		  //this.subline.shadow = new createjs.Shadow("rgba(0,0,0,0.15)", 0, 1, 4);
 		} else {
 		  warn("Saknar instans 'subline' eller 'subline.txt' på scenen.");
 		}
 		
 		/* =====================================
-		   5) Hjälpare: färga om loggan (vektor)
+		   4) Hjälpare: färga om loggan (vektor)
 		   ===================================== */
 		this.setLogoColor = (obj, color) => {
 		  if (!obj) return;
@@ -252,13 +237,13 @@ if (reversed == null) { reversed = false; }
 		};
 		
 		/* ============================
-		   6) Logo: skala + positionera (höjdstyrd, reg = CENTER, med yOffset)
+		   5) Logo: skala + positionera (höjdstyrd, reg = CENTER, med yOffset)
 		   ============================ */
 		this.positionLogo = ({
-		  anchor = "bottomRight",
+		  anchor = "center",
 		  pad = 32,
-		  heightPx = 80,
-		  yOffset = 0
+		  heightPx = 54,
+		  yOffset = 200
 		} = {}) => {
 		  if (!this.logo) return;
 		
@@ -281,16 +266,11 @@ if (reversed == null) { reversed = false; }
 		
 		  let x = stageW / 2, y = stageH / 2;
 		  switch (anchor) {
-		    case "topLeft":
-		      x = pad + halfW; y = pad + halfH; break;
-		    case "topRight":
-		      x = stageW - pad - halfW; y = pad + halfH; break;
-		    case "bottomLeft":
-		      x = pad + halfW; y = stageH - pad - halfH; break;
-		    case "bottomRight":
-		      x = stageW - pad - halfW; y = stageH - pad - halfH; break;
-		    case "center":
-		      x = stageW / 2; y = stageH / 2; break;
+		    case "topLeft":      x = pad + halfW;            y = pad + halfH;            break;
+		    case "topRight":     x = stageW - pad - halfW;   y = pad + halfH;            break;
+		    case "bottomLeft":   x = pad + halfW;            y = stageH - pad - halfH;   break;
+		    case "bottomRight":  x = stageW - pad - halfW;   y = stageH - pad - halfH;   break;
+		    case "center":       x = stageW / 2;             y = stageH / 2;             break;
 		    case "belowSublineCenter": {
 		      const lh = (this.subline && this.subline.txt && this.subline.txt.lineHeight) ? this.subline.txt.lineHeight : 32;
 		      const lines = (this.subline && this.subline.txt && this.subline.txt.text) ? this.subline.txt.text.split('\n').length : 3;
@@ -302,38 +282,36 @@ if (reversed == null) { reversed = false; }
 		  }
 		
 		  this.logo.x = x;
-		  this.logo.y = y + yOffset; // ← extra offset i px
+		  this.logo.y = y + yOffset;
 		};
 		
 		/* ===============================
-		   7) Funktion för att applicera lag
+		   6) Applicera lag (BG + texter + logga)
 		   =============================== */
 		this.applyTeam = (teamKey) => {
-		  const colors = this.teams[teamKey];
-		  if (!colors) { warn("Okänt lag: " + teamKey); return; }
+		  const style = this.teamStyles[teamKey];
+		  if (!style) { warn("Okänt lag: " + teamKey); return; }
 		
-		  for (let i = 0; i < numFields; i++) {
-		    this.fields[i].graphics.clear()
-		      .beginFill(colors[i] || "#CCCCCC")
-		      .drawRect(0, 0, fieldW, stageH);
-		  }
+		  // Bakgrund (enfärgad)
+		  this.bg.graphics.clear().beginFill(style.bg).drawRect(0, 0, stageW, stageH);
 		
-		  const tc = this.textColors[teamKey] || { headline: "#FFFFFF", subline: "#FFFFFF" };
-		  if (hasHeadline) this.headline.txt.color = tc.headline;
-		  if (hasSubline)  this.subline.txt.color  = tc.subline;
+		  // Textfärger
+		  if (hasHeadline) this.headline.txt.color = style.headline || "#FFFFFF";
+		  if (hasSubline)  this.subline.txt.color  = style.subline  || "#FFFFFF";
 		
+		  // Logga: egen färg + position
 		  if (this.logo) {
-		    this.setLogoColor(this.logo, tc.headline);
-		    this.positionLogo({ anchor: "center", pad: 36, heightPx: 54, yOffset: 200 });
+		    this.setLogoColor(this.logo, style.logo || style.headline || "#FFFFFF");
+		    this.positionLogo({ anchor: "center", heightPx: 54, yOffset: 200 });
 		  }
 		
 		  this.stage.update();
 		};
 		
 		/* ===============================
-		   8) Loop och styrning
+		   7) Loop och styrning
 		   =============================== */
-		this.teamOrder = Object.keys(this.teams);
+		this.teamOrder = Object.keys(this.teamStyles);
 		this.currentIndex = 0;
 		this.loopIntervalMs = 3000;
 		this._loopTimer = null;
@@ -366,14 +344,14 @@ if (reversed == null) { reversed = false; }
 		};
 		
 		/* ==========================
-		   9) Init (vänta på webfonter)
+		   8) Init (vänta på webfonter)
 		   ========================== */
 		const start = () => {
 		  if (this.teamOrder.length) {
-		    this.applyTeam(this.teamOrder[0]);
+		    this.applyTeam(this.teamOrder[0]);  // ritar allt första gången
 		    this.startLoop(3000);
 		  } else {
-		    warn("Inga lag i this.teams.");
+		    warn("Inga lag i this.teamStyles.");
 		  }
 		};
 		
@@ -406,16 +384,12 @@ if (reversed == null) { reversed = false; }
 	this.headline.name = "headline";
 	this.headline.setTransform(716.95,422,1,1,0,0,0,50,49.2);
 
-	this.shape = new cjs.Shape();
-	this.shape.graphics.f().s("#FF0000").ss(1,1,1).p("EhSQAAAMCkhAAA");
-	this.shape.setTransform(959.9872,777,1.8235,1);
-
-	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape},{t:this.headline},{t:this.subline},{t:this.logo}]}).wait(1));
+	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.headline},{t:this.subline},{t:this.logo}]}).wait(1));
 
 	this._renderFirstFrame();
 
 }).prototype = p = new lib.AnMovieClip();
-p.nominalBounds = new cjs.Rectangle(959,888.1,962,-110.10000000000002);
+p.nominalBounds = new cjs.Rectangle(1407.3,888.1,-638.3,-199.89999999999998);
 // library properties:
 lib.properties = {
 	id: 'E70EBF7283014CCAA194A267093E2191',
