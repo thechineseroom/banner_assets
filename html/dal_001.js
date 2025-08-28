@@ -189,7 +189,7 @@ if (reversed == null) { reversed = false; }
 		
 		  this.headline.regX = 0; this.headline.regY = 0;
 		  this.headline.x = DESIGN_W / 2;
-		  this.headline.y = Math.round(DESIGN_H * 0.13);
+		  this.headline.y = Math.round(DESIGN_H * 0.1);
 		
 		  this.headline.shadow = new createjs.Shadow("rgba(0,0,0,0.25)", 0, 2, 6);
 		} else {
@@ -210,7 +210,7 @@ if (reversed == null) { reversed = false; }
 		
 		  this.subline.regX = 0; this.subline.regY = 0;
 		  this.subline.x = DESIGN_W / 2;
-		  this.subline.y = (this.headline ? this.headline.y + 350 : Math.round(DESIGN_H * 0.3));
+		  this.subline.y = (this.headline ? this.headline.y + 400 : Math.round(DESIGN_H * 0.3));
 		
 		  this.subline.shadow = new createjs.Shadow("rgba(0,0,0,0.15)", 0, 1, 4);
 		} else {
