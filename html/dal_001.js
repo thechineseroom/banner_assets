@@ -185,13 +185,13 @@ if (reversed == null) { reversed = false; }
 		  this.headline.txt.font = "bold 120px 'CircularXX Black'";
 		  this.headline.txt.multiline = true;
 		  this.headline.txt.lineWidth = Math.round(DESIGN_W * 0.9);
-		  this.headline.txt.lineHeight = 120;
+		  this.headline.txt.lineHeight = 110;
 		
 		  this.headline.regX = 0; this.headline.regY = 0;
 		  this.headline.x = DESIGN_W / 2;
 		  this.headline.y = Math.round(DESIGN_H * 0.1);
 		
-		  this.headline.shadow = new createjs.Shadow("rgba(0,0,0,0.25)", 0, 2, 6);
+		  //this.headline.shadow = new createjs.Shadow("rgba(0,0,0,0.25)", 0, 2, 6);
 		} else {
 		  warn("Saknar instans 'headline' eller 'headline.txt' på scenen.");
 		}
@@ -212,7 +212,7 @@ if (reversed == null) { reversed = false; }
 		  this.subline.x = DESIGN_W / 2;
 		  this.subline.y = (this.headline ? this.headline.y + 400 : Math.round(DESIGN_H * 0.3));
 		
-		  this.subline.shadow = new createjs.Shadow("rgba(0,0,0,0.15)", 0, 1, 4);
+		  //this.subline.shadow = new createjs.Shadow("rgba(0,0,0,0.15)", 0, 1, 4);
 		} else {
 		  warn("Saknar instans 'subline' eller 'subline.txt' på scenen.");
 		}
