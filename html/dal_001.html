@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="authoring-tool" content="Adobe_Animate_CC" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>dal_001</title>
 
-  <!-- Preload webfonter -->
+  <!-- Webfonter -->
   <link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1" as="font" type="font/woff2" crossorigin>
-
   <style>
-    /* Font-familjer måste matcha CreateJS-strängarna i din FLA-kod */
     @font-face {
       font-family: 'CircularXX Black';
       src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1') format('woff2'),
@@ -26,16 +24,34 @@
     }
 
     html, body { height: 100%; margin: 0; background: #fff; }
-    /* Absolut positionering; vi sätter storlek/placering via JS */
+    /* Ytter-wrapper som definierar den yta bannern får */
+    #stagewrap {
+      position: relative;
+      width: 100%;
+      height: 100vh;      /* fyll viewport – ändra till valfri höjd om den ska bäddas in */
+      overflow: hidden;
+      background: #ffffff;
+    }
+    /* Dessa tre positioneras absolut inne i stagewrap */
     #animation_container, #dom_overlay_container, canvas {
       position: absolute; left: 0; top: 0;
+      image-rendering: auto;
     }
-    #animation_container { width: 100%; height: 100%; overflow: hidden; background:#ffffff; }
   </style>
 
-  <!-- CreateJS och din Animate-export -->
+  <!-- CreateJS + Animate-export -->
   <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
   <script src="dal_001.js"></script>
+</head>
+
+<body>
+  <div id="stagewrap">
+    <div id="animation_container">
+      <!-- Behåll din design size här -->
+      <canvas id="canvas" width="1920" height="1080" style="display:block; background:#ffffff;"></canvas>
+      <div id="dom_overlay_container"></div>
+    </div>
+  </div>
 
   <script>
     var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
@@ -44,7 +60,7 @@
       canvas = document.getElementById("canvas");
       anim_container = document.getElementById("animation_container");
       dom_overlay_container = document.getElementById("dom_overlay_container");
-      var comp = AdobeAn.getComposition("E70EBF7283014CCAA194A267093E2191"); // ditt comp-ID
+      var comp = AdobeAn.getComposition("E70EBF7283014CCAA194A267093E2191");
       handleComplete({}, comp);
     }
 
@@ -57,51 +73,73 @@
         stage.addChild(exportRoot);
         createjs.Ticker.framerate = lib.properties.fps;
         createjs.Ticker.addEventListener("tick", stage);
+        stage.tickOnUpdate = true;
       };
 
-      // --- DPR + RESPONSIVE (contain/cover) -------------------------
-      var w = lib.properties.width,  h = lib.properties.height; // t.ex. 1920x1080 i Animate
-      var scaleType = 1; // 1 = contain (rekommenderas), 2 = cover
+      // --- RESPONSIVE + RETINA (contain som default) -----------------
+      var w = lib.properties.width,  h = lib.properties.height; // t.ex. 1920 x 1080
+      var fitMode = "contain"; // "contain" eller "cover"
+      var wrap = document.getElementById("stagewrap");
 
       function resizeCanvas() {
-        var iw = window.innerWidth, ih = window.innerHeight;
-        var pRatio = window.devicePixelRatio || 1;  // retina m.m.
+        // verklig tillgänglig yta
+        var iw = wrap.clientWidth;
+        var ih = wrap.clientHeight;
+
+        // DPR (kan ändras när fönster flyttas mellan skärmar/zoomas)
+        var pRatio = window.devicePixelRatio || 1;
+
         var xRatio = iw / w, yRatio = ih / h;
-        var sRatio = (scaleType === 1) ? Math.min(xRatio, yRatio) : Math.max(xRatio, yRatio);
+        var sRatio = (fitMode === "cover") ? Math.max(xRatio, yRatio) : Math.min(xRatio, yRatio);
 
-        // Visuell (CSS) storlek
-        var cssW = w * sRatio;
-        var cssH = h * sRatio;
-        canvas.style.width = anim_container.style.width = dom_overlay_container.style.width = cssW + "px";
-        canvas.style.height = anim_container.style.height = dom_overlay_container.style.height = cssH + "px";
+        // CSS-storlek (synlig)
+        var cssW = Math.max(1, Math.round(w * sRatio));
+        var cssH = Math.max(1, Math.round(h * sRatio));
 
-        // Intern pixelstorlek för skärpa på DPR>1
-        canvas.width  = Math.round(w * pRatio * sRatio);
-        canvas.height = Math.round(h * pRatio * sRatio);
+        // Intern pixelstorlek (krispigt på DPR>1)
+        canvas.width  = Math.max(1, Math.round(w * pRatio * sRatio));
+        canvas.height = Math.max(1, Math.round(h * pRatio * sRatio));
+
+        // Synliga mått på alla lager
+        var cssWpx = cssW + "px", cssHpx = cssH + "px";
+        canvas.style.width = anim_container.style.width = dom_overlay_container.style.width = cssWpx;
+        canvas.style.height = anim_container.style.height = dom_overlay_container.style.height = cssHpx;
 
         // Skala scenen
         stage.scaleX = stage.scaleY = pRatio * sRatio;
 
-        // Centrera i viewport (nice i contain-läge)
-        anim_container.style.left = ((iw - cssW) / 2) + "px";
-        anim_container.style.top  = ((ih - cssH) / 2) + "px";
+        // Centrera inom stagewrap
+        var offsetX = (iw - cssW) * 0.5;
+        var offsetY = (ih - cssH) * 0.5;
+        anim_container.style.left = offsetX + "px";
+        anim_container.style.top  = offsetY + "px";
+        dom_overlay_container.style.left = anim_container.style.left;
+        dom_overlay_container.style.top  = anim_container.style.top;
+
+        // Uppdatera en gång för att undvika “halvskalig” första frame
+        stage.update();
       }
 
-      window.addEventListener('resize', resizeCanvas);
+      // Lyssna på: container-resize + fönster-resize + DPR-skiften
+      var ro = new ResizeObserver(resizeCanvas);
+      ro.observe(document.getElementById("stagewrap"));
+      window.addEventListener("resize", resizeCanvas);
+      window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`).addEventListener("change", resizeCanvas);
+      window.addEventListener("orientationchange", resizeCanvas);
+
+      // Kör en gång efter fonts (om möjligt) + en gång direkt
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { resizeCanvas(); });
+      }
       resizeCanvas();
-      // --------------------------------------------------------------
+      // ---------------------------------------------------------------
 
       AdobeAn.compositionLoaded(lib.properties.id);
       fnStartAnimation();
     }
-  </script>
-</head>
 
-<body onload="init();">
-  <!-- Behåll designstorlek på canvas-attributen; används som bas -->
-  <div id="animation_container">
-    <canvas id="canvas" width="1920" height="1080" style="display:block; background:#ffffff;"></canvas>
-    <div id="dom_overlay_container"></div>
-  </div>
+    // Kickoff
+    window.addEventListener("load", init);
+  </script>
 </body>
 </html>
