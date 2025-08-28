@@ -3,36 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="authoring-tool" content="Adobe_Animate_CC" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>dal_001</title>
 
-<!-- Preload (snabbare visning) -->
-<link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1" as="font" type="font/woff2" crossorigin>
+  <!-- Preload webfonter -->
+  <link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1" as="font" type="font/woff2" crossorigin>
 
-<style>
-  /* Måste matcha exakt det Animate visar i console.log */
-  @font-face {
-    font-family: 'CircularXX Black';
-    src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1') format('woff2'),
-         url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff?v=1') format('woff');
-    font-weight: 900; font-style: normal; font-display: swap;
-  }
+  <style>
+    /* Font-familjer måste matcha CreateJS-strängarna i din FLA-kod */
+    @font-face {
+      font-family: 'CircularXX Black';
+      src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1') format('woff2'),
+           url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff?v=1') format('woff');
+      font-weight: 900; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'CircularXX Medium';
+      src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1') format('woff2'),
+           url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff?v=1') format('woff');
+      font-weight: 500; font-style: normal; font-display: swap;
+    }
 
-  @font-face {
-    font-family: 'CircularXX Medium';
-    src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1') format('woff2'),
-         url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff?v=1') format('woff');
-    font-weight: 500; font-style: normal; font-display: swap;
-  }
+    html, body { height: 100%; margin: 0; background: #fff; }
+    /* Absolut positionering; vi sätter storlek/placering via JS */
+    #animation_container, #dom_overlay_container, canvas {
+      position: absolute; left: 0; top: 0;
+    }
+    #animation_container { width: 100%; height: 100%; overflow: hidden; background:#ffffff; }
+  </style>
 
-  body { margin:0; background:#fff; }
-</style>
-
-  <!-- 2) CreateJS + din Animate-export -->
+  <!-- CreateJS och din Animate-export -->
   <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
   <script src="dal_001.js"></script>
 
-  <!-- 3) Animate bootstrap -->
   <script>
     var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
 
@@ -40,9 +44,7 @@
       canvas = document.getElementById("canvas");
       anim_container = document.getElementById("animation_container");
       dom_overlay_container = document.getElementById("dom_overlay_container");
-      var comp = AdobeAn.getComposition("E70EBF7283014CCAA194A267093E2191"); // samma ID som i din export
-      var lib = comp.getLibrary();
-
+      var comp = AdobeAn.getComposition("E70EBF7283014CCAA194A267093E2191"); // ditt comp-ID
       handleComplete({}, comp);
     }
 
@@ -57,23 +59,49 @@
         createjs.Ticker.addEventListener("tick", stage);
       };
 
-      // Responsiv: av enligt din mall (behåll så om du kör fasta px-format)
-      AdobeAn.makeResponsive(false, 'both', false, 1, [canvas, anim_container, dom_overlay_container]);
-      AdobeAn.compositionLoaded(lib.properties.id);
+      // --- DPR + RESPONSIVE (contain/cover) -------------------------
+      var w = lib.properties.width,  h = lib.properties.height; // t.ex. 1920x1080 i Animate
+      var scaleType = 1; // 1 = contain (rekommenderas), 2 = cover
 
-      // Starta animationen direkt; din FLA-kod väntar själv på document.fonts.ready
+      function resizeCanvas() {
+        var iw = window.innerWidth, ih = window.innerHeight;
+        var pRatio = window.devicePixelRatio || 1;  // retina m.m.
+        var xRatio = iw / w, yRatio = ih / h;
+        var sRatio = (scaleType === 1) ? Math.min(xRatio, yRatio) : Math.max(xRatio, yRatio);
+
+        // Visuell (CSS) storlek
+        var cssW = w * sRatio;
+        var cssH = h * sRatio;
+        canvas.style.width = anim_container.style.width = dom_overlay_container.style.width = cssW + "px";
+        canvas.style.height = anim_container.style.height = dom_overlay_container.style.height = cssH + "px";
+
+        // Intern pixelstorlek för skärpa på DPR>1
+        canvas.width  = Math.round(w * pRatio * sRatio);
+        canvas.height = Math.round(h * pRatio * sRatio);
+
+        // Skala scenen
+        stage.scaleX = stage.scaleY = pRatio * sRatio;
+
+        // Centrera i viewport (nice i contain-läge)
+        anim_container.style.left = ((iw - cssW) / 2) + "px";
+        anim_container.style.top  = ((ih - cssH) / 2) + "px";
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      // --------------------------------------------------------------
+
+      AdobeAn.compositionLoaded(lib.properties.id);
       fnStartAnimation();
     }
   </script>
 </head>
 
 <body onload="init();">
-  <div id="animation_container" style="width:1920px; height:1080px; position:relative; background:#ffffff;">
-    <canvas id="canvas" width="1920" height="1080"
-            style="position:absolute; display:block; background:#ffffff;"></canvas>
-    <div id="dom_overlay_container"
-         style="pointer-events:none; overflow:hidden; width:1920px; height:1080px; position:absolute; left:0; top:0; display:block;">
-    </div>
+  <!-- Behåll designstorlek på canvas-attributen; används som bas -->
+  <div id="animation_container">
+    <canvas id="canvas" width="1920" height="1080" style="display:block; background:#ffffff;"></canvas>
+    <div id="dom_overlay_container"></div>
   </div>
 </body>
 </html>
