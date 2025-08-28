@@ -141,10 +141,10 @@ if (reversed == null) { reversed = false; }
 		this.stop();
 		
 		/* ==========
-		   Helpers
+		   Helpers (ANVÄND DESIGNMÅTT – INTE canvas.width)
 		   ========== */
-		const stageW = this.stage.canvas.width;
-		const stageH = this.stage.canvas.height;
+		const DESIGN_W = 1920;   // ← din Animate-scens bredd
+		const DESIGN_H = 1080;   // ← din Animate-scens höjd
 		
 		const hasHeadline = !!(this.headline && this.headline.txt);
 		const hasSubline  = !!(this.subline  && this.subline.txt);
@@ -155,7 +155,7 @@ if (reversed == null) { reversed = false; }
 		   1) Bakgrund: EN färg (en rektangel)
 		   ========================= */
 		this.bg = new createjs.Shape();
-		this.bg.graphics.beginFill("#CCCCCC").drawRect(0, 0, stageW, stageH);
+		this.bg.graphics.beginFill("#CCCCCC").drawRect(0, 0, DESIGN_W, DESIGN_H);
 		this.addChildAt(this.bg, 0);
 		
 		/* ====================================
@@ -181,19 +181,17 @@ if (reversed == null) { reversed = false; }
 		if (hasHeadline) {
 		  this.headline.txt.text = "Vi är\ndin andra\nklubb";
 		  this.headline.txt.textAlign = "center";
-		  this.headline.txt.x = 0;                  // centrera runt 0
-		  this.headline.txt.y = 0;
+		  this.headline.txt.x = 0;  this.headline.txt.y = 0;
 		  this.headline.txt.font = "bold 120px 'CircularXX Black'";
 		  this.headline.txt.multiline = true;
-		  this.headline.txt.lineWidth = Math.round(stageW * 0.9);
+		  this.headline.txt.lineWidth = Math.round(DESIGN_W * 0.9);
 		  this.headline.txt.lineHeight = 120;
 		
-		  this.headline.regX = 0;                   // låt MC ha reg vid (0,0)
-		  this.headline.regY = 0;
-		  this.headline.x = stageW / 2;             // placera MC i mitten
-		  this.headline.y = Math.round(stageH * 0.1);
+		  this.headline.regX = 0; this.headline.regY = 0;
+		  this.headline.x = DESIGN_W / 2;
+		  this.headline.y = Math.round(DESIGN_H * 0.13);
 		
-		  //this.headline.shadow = new createjs.Shadow("rgba(0,0,0,0.25)", 0, 2, 6);
+		  this.headline.shadow = new createjs.Shadow("rgba(0,0,0,0.25)", 0, 2, 6);
 		} else {
 		  warn("Saknar instans 'headline' eller 'headline.txt' på scenen.");
 		}
@@ -204,19 +202,17 @@ if (reversed == null) { reversed = false; }
 		    "Är du en schysst byggare är vår klubb också din klubb.\n" +
 		    "Du kommer aldrig att stå ensam.";
 		  this.subline.txt.textAlign = "center";
-		  this.subline.txt.x = 0;                   // centrera runt 0
-		  this.subline.txt.y = 0;
+		  this.subline.txt.x = 0;  this.subline.txt.y = 0;
 		  this.subline.txt.font = "28px 'CircularXX Medium'";
 		  this.subline.txt.multiline = true;
-		  this.subline.txt.lineWidth = Math.round(stageW * 0.9);
+		  this.subline.txt.lineWidth = Math.round(DESIGN_W * 0.9);
 		  this.subline.txt.lineHeight = 32;
 		
-		  this.subline.regX = 0;                    // låt MC ha reg vid (0,0)
-		  this.subline.regY = 0;
-		  this.subline.x = stageW / 2;              // placera MC i mitten
-		  this.subline.y = (this.headline ? this.headline.y + 420 : Math.round(stageH * 0.3));
+		  this.subline.regX = 0; this.subline.regY = 0;
+		  this.subline.x = DESIGN_W / 2;
+		  this.subline.y = (this.headline ? this.headline.y + 350 : Math.round(DESIGN_H * 0.3));
 		
-		  //this.subline.shadow = new createjs.Shadow("rgba(0,0,0,0.15)", 0, 1, 4);
+		  this.subline.shadow = new createjs.Shadow("rgba(0,0,0,0.15)", 0, 1, 4);
 		} else {
 		  warn("Saknar instans 'subline' eller 'subline.txt' på scenen.");
 		}
@@ -226,13 +222,9 @@ if (reversed == null) { reversed = false; }
 		   ===================================== */
 		this.setLogoColor = (obj, color) => {
 		  if (!obj) return;
-		  if (obj.graphics && obj.graphics._fill) {
-		    obj.graphics._fill.style = color;
-		  }
+		  if (obj.graphics && obj.graphics._fill) obj.graphics._fill.style = color;
 		  if (obj.children && obj.children.length) {
-		    for (let i = 0; i < obj.children.length; i++) {
-		      this.setLogoColor(obj.children[i], color);
-		    }
+		    for (let i = 0; i < obj.children.length; i++) this.setLogoColor(obj.children[i], color);
 		  }
 		};
 		
@@ -248,15 +240,11 @@ if (reversed == null) { reversed = false; }
 		  if (!this.logo) return;
 		
 		  let b = this.logo.getBounds() || this.logo.nominalBounds;
-		  if (!b) {
-		    b = { x:0, y:0, width: 300, height: 80 };
-		    this.logo.setBounds(0,0,b.width,b.height);
-		  }
+		  if (!b) { b = { x:0, y:0, width: 300, height: 80 }; this.logo.setBounds(0,0,b.width,b.height); }
 		
 		  const regCX = b.x + b.width / 2;
 		  const regCY = b.y + b.height / 2;
-		  this.logo.regX = regCX;
-		  this.logo.regY = regCY;
+		  this.logo.regX = regCX; this.logo.regY = regCY;
 		
 		  const s = heightPx / b.height;
 		  this.logo.scaleX = this.logo.scaleY = s;
@@ -264,18 +252,18 @@ if (reversed == null) { reversed = false; }
 		  const halfW = (b.width  * s) / 2;
 		  const halfH = (b.height * s) / 2;
 		
-		  let x = stageW / 2, y = stageH / 2;
+		  let x = DESIGN_W / 2, y = DESIGN_H / 2;
 		  switch (anchor) {
-		    case "topLeft":      x = pad + halfW;            y = pad + halfH;            break;
-		    case "topRight":     x = stageW - pad - halfW;   y = pad + halfH;            break;
-		    case "bottomLeft":   x = pad + halfW;            y = stageH - pad - halfH;   break;
-		    case "bottomRight":  x = stageW - pad - halfW;   y = stageH - pad - halfH;   break;
-		    case "center":       x = stageW / 2;             y = stageH / 2;             break;
+		    case "topLeft":      x = pad + halfW;               y = pad + halfH;               break;
+		    case "topRight":     x = DESIGN_W - pad - halfW;    y = pad + halfH;               break;
+		    case "bottomLeft":   x = pad + halfW;               y = DESIGN_H - pad - halfH;    break;
+		    case "bottomRight":  x = DESIGN_W - pad - halfW;    y = DESIGN_H - pad - halfH;    break;
+		    case "center":       x = DESIGN_W / 2;              y = DESIGN_H / 2;              break;
 		    case "belowSublineCenter": {
 		      const lh = (this.subline && this.subline.txt && this.subline.txt.lineHeight) ? this.subline.txt.lineHeight : 32;
 		      const lines = (this.subline && this.subline.txt && this.subline.txt.text) ? this.subline.txt.text.split('\n').length : 3;
-		      const subBottom = (this.subline ? this.subline.y : stageH*0.3) + lh * lines;
-		      x = stageW / 2;
+		      const subBottom = (this.subline ? this.subline.y : DESIGN_H*0.3) + lh * lines;
+		      x = DESIGN_W / 2;
 		      y = subBottom + 40 + halfH;
 		      break;
 		    }
@@ -292,8 +280,8 @@ if (reversed == null) { reversed = false; }
 		  const style = this.teamStyles[teamKey];
 		  if (!style) { warn("Okänt lag: " + teamKey); return; }
 		
-		  // Bakgrund (enfärgad)
-		  this.bg.graphics.clear().beginFill(style.bg).drawRect(0, 0, stageW, stageH);
+		  // Bakgrund (enfärgad) i DESIGN-mått
+		  this.bg.graphics.clear().beginFill(style.bg).drawRect(0, 0, DESIGN_W, DESIGN_H);
 		
 		  // Textfärger
 		  if (hasHeadline) this.headline.txt.color = style.headline || "#FFFFFF";
@@ -330,10 +318,7 @@ if (reversed == null) { reversed = false; }
 		};
 		
 		this.stopLoop = () => {
-		  if (this._loopTimer) {
-		    clearInterval(this._loopTimer);
-		    this._loopTimer = null;
-		  }
+		  if (this._loopTimer) { clearInterval(this._loopTimer); this._loopTimer = null; }
 		};
 		
 		this.setTeam = (teamKey, opts = { pauseLoop: false }) => {
@@ -348,7 +333,7 @@ if (reversed == null) { reversed = false; }
 		   ========================== */
 		const start = () => {
 		  if (this.teamOrder.length) {
-		    this.applyTeam(this.teamOrder[0]);  // ritar allt första gången
+		    this.applyTeam(this.teamOrder[0]);
 		    this.startLoop(3000);
 		  } else {
 		    warn("Inga lag i this.teamStyles.");
@@ -365,7 +350,7 @@ if (reversed == null) { reversed = false; }
 		  start();
 		}
 		
-		// OBS: HTML:en startar redan Ticker (addEventListener("tick", stage))
+		// OBS: HTML:en sköter Ticker (addEventListener("tick", stage))
 	}
 
 	// actions tween:
