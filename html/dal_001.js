@@ -179,17 +179,17 @@ if (reversed == null) { reversed = false; }
 		   3) Styla och positionera text (riktig centrering)
 		   ============================ */
 		if (hasHeadline) {
-		  this.headline.txt.text = "Vi är\ndin andra\nklubb";
+		  this.headline.txt.text = "Vi är din\nandra klubb";
 		  this.headline.txt.textAlign = "center";
 		  this.headline.txt.x = 0;  this.headline.txt.y = 0;
-		  this.headline.txt.font = "bold 120px 'CircularXX Black'";
+		  this.headline.txt.font = "bold 190px 'CircularXX Black'";
 		  this.headline.txt.multiline = true;
 		  this.headline.txt.lineWidth = Math.round(DESIGN_W * 0.9);
-		  this.headline.txt.lineHeight = 110;
+		  this.headline.txt.lineHeight = 170;
 		
 		  this.headline.regX = 0; this.headline.regY = 0;
 		  this.headline.x = DESIGN_W / 2;
-		  this.headline.y = Math.round(DESIGN_H * 0.1);
+		  this.headline.y = Math.round(DESIGN_H * 0.15);
 		
 		  //this.headline.shadow = new createjs.Shadow("rgba(0,0,0,0.25)", 0, 2, 6);
 		} else {
@@ -210,7 +210,7 @@ if (reversed == null) { reversed = false; }
 		
 		  this.subline.regX = 0; this.subline.regY = 0;
 		  this.subline.x = DESIGN_W / 2;
-		  this.subline.y = (this.headline ? this.headline.y + 400 : Math.round(DESIGN_H * 0.3));
+		  this.subline.y = (this.headline ? this.headline.y + 390 : Math.round(DESIGN_H * 0.3));
 		
 		  //this.subline.shadow = new createjs.Shadow("rgba(0,0,0,0.15)", 0, 1, 4);
 		} else {
@@ -301,7 +301,7 @@ if (reversed == null) { reversed = false; }
 		   =============================== */
 		this.teamOrder = Object.keys(this.teamStyles);
 		this.currentIndex = 0;
-		this.loopIntervalMs = 3000;
+		this.loopIntervalMs = 800;
 		this._loopTimer = null;
 		
 		this.nextTeam = () => {
@@ -334,7 +334,7 @@ if (reversed == null) { reversed = false; }
 		const start = () => {
 		  if (this.teamOrder.length) {
 		    this.applyTeam(this.teamOrder[0]);
-		    this.startLoop(3000);
+		    this.startLoop(800);
 		  } else {
 		    warn("Inga lag i this.teamStyles.");
 		  }
