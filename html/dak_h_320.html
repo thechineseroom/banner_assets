@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="authoring-tool" content="Adobe_Animate_CC" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>dak_h_320</title>
+
+  <!-- Webfonter -->
+  <link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face {
+      font-family: 'CircularXX Black';
+      src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff2?v=1') format('woff2'),
+           url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Black.woff?v=1') format('woff');
+      font-weight: 900; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'CircularXX Medium';
+      src: url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff2?v=1') format('woff2'),
+           url('https://thechineseroom.github.io/banner_assets/fonts/CircularXXWeb-Medium.woff?v=1') format('woff');
+      font-weight: 500; font-style: normal; font-display: swap;
+    }
+
+    html, body { height: 100%; margin: 0; background: #fff; }
+    #stagewrap {
+      position: relative;
+      width: 100%;
+      height: 100vh;      /* eller en fast höjd om du bäddar in */
+      overflow: hidden;
+      background: #ffffff;
+    }
+    #animation_container, #dom_overlay_container, canvas {
+      position: absolute; left: 0; top: 0;
+    }
+  </style>
+
+  <!-- CreateJS + Animate-export -->
+  <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+  <script src="dak_h_320.js?v=3"></script>
+</head>
+
+<body>
+  <div id="stagewrap">
+    <div id="animation_container">
+      <!-- Måste matcha lib.properties (320×320 i din export) -->
+      <canvas id="canvas" width="320" height="320" style="display:block; background:#ffffff;"></canvas>
+      <div id="dom_overlay_container"></div>
+    </div>
+  </div>
+
+  <script>
+    var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+
+    function init() {
+      canvas = document.getElementById("canvas");
+      anim_container = document.getElementById("animation_container");
+      dom_overlay_container = document.getElementById("dom_overlay_container");
+
+      if (!window.AdobeAn) {
+        console.error("Export-JS laddades inte (AdobeAn saknas). Kolla sökväg/404.");
+        return;
+      }
+
+      var comp = AdobeAn.getComposition("E70EBF7283014CCAA194A267093E2191");
+      if (!comp) {
+        console.error("Hittar inget comp med det ID:t.");
+        return;
+      }
+      handleComplete({}, comp);
+    }
+
+    function handleComplete(evt, comp) {
+      var lib = comp.getLibrary();
+      exportRoot = new lib.dak_h_320();
+      stage = new lib.Stage(canvas);
+
+      fnStartAnimation = function() {
+        stage.addChild(exportRoot);
+        createjs.Ticker.framerate = lib.properties.fps;
+        createjs.Ticker.addEventListener("tick", stage);
+        stage.tickOnUpdate = true;
+      };
+
+      // RESPONSIVE (width-first) + DPR
+      var w = lib.properties.width,  h = lib.properties.height; // 320 × 320
+      var wrap = document.getElementById("stagewrap");
+
+      function resizeCanvas() {
+        var iw = wrap.clientWidth;
+        var ih = wrap.clientHeight;
+        var pRatio = window.devicePixelRatio || 1;
+
+        var sRatio = Math.min(1, iw / w);
+        var cssW = Math.max(1, Math.round(w * sRatio));
+        var cssH = Math.max(1, Math.round(h * sRatio));
+
+        canvas.width  = Math.round(w * pRatio * sRatio);
+        canvas.height = Math.round(h * pRatio * sRatio);
+
+        var cssWpx = cssW + "px", cssHpx = cssH + "px";
+        canvas.style.width = anim_container.style.width = dom_overlay_container.style.width = cssWpx;
+        canvas.style.height = anim_container.style.height = dom_overlay_container.style.height = cssHpx;
+
+        stage.scaleX = stage.scaleY = pRatio * sRatio;
+
+        anim_container.style.left = ((iw - cssW) * 0.5) + "px";
+        anim_container.style.top  = Math.max(0, (ih - cssH) * 0.5) + "px";
+
+        stage.update();
+      }
+
+      var ro = new ResizeObserver(resizeCanvas);
+      ro.observe(document.getElementById("stagewrap"));
+      window.addEventListener("resize", resizeCanvas);
+      window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`).addEventListener("change", resizeCanvas);
+      window.addEventListener("orientationchange", resizeCanvas);
+
+      if (document.fonts && document.fonts.ready) { document.fonts.ready.then(resizeCanvas); }
+      resizeCanvas();
+
+      AdobeAn.compositionLoaded(lib.properties.id);
+      fnStartAnimation();
+    }
+
+    window.addEventListener("load", init);
+  </script>
+</body>
+</html>
