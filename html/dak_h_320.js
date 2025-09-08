@@ -238,13 +238,18 @@ if (reversed == null) { reversed = false; }
 		this.stop();
 		
 		/* ==========
-		   Design (320×320) + debug
+		   Design (320×320) + headline-styrning
 		   ========== */
 		const DESIGN_W = 320;
 		const DESIGN_H = 320;
-		const DEBUG_BOUNDS = false; // sätt till false när du är nöjd
+		const DEBUG_BOUNDS   = false; // true = visa ram runt loggans bounds
 		
-		const hasHeadlineSep = !!this.headlineSep;                 // MC med headlineFill + headlineStroke
+		// → Styr rubriken här:
+		const HEADLINE_SCALE = 0.91;    // 1.0 = original, 0.85 = 85% osv
+		const HEADLINE_TOP_Y = Math.round(DESIGN_H * 0.17);
+		const SUBLINE_GAP    = 45;     // px mellan rubrikens nederkant och subline
+		
+		const hasHeadlineSep = !!this.headlineSep;   // MC med headlineFill + headlineStroke inuti
 		const hasSubline     = !!(this.subline && this.subline.txt);
 		const warn = (m)=>{ try{ console.warn(m);}catch(e){} };
 		
@@ -259,13 +264,21 @@ if (reversed == null) { reversed = false; }
 		   Team-styles
 		   ========== */
 		this.teamStyles = {
-		  dif:         { bg:"#c92b2e", headlineFill:"#ffffff", headlineStroke:"#124a97", subline:"#ffffff", logo:"#ffffff" },
-		  hammarby:    { bg:"#005fab", headlineFill:"#e83136", headlineStroke:"#ffdd00", subline:"#ffffff", logo:"#ffdd00" },
-		  sirius:      { bg:"#cc2a30", headlineFill:"#ffffff", headlineStroke:"#00573f", subline:"#ffffff", logo:"#ffffff" },
-		  bp:          { bg:"#000000", headlineFill:"#e72a30", headlineStroke:"#ffcc00", subline:"#ffffff", logo:"#ffcc00" },
-		  ifkgoteborg: { bg:"#1e402f", headlineFill:"#038e53", headlineStroke:"#ffffff", subline:"#ffffff", logo:"#d9ab49" },
-		  gais:        { bg:"#122145", headlineFill:"#ffd800", headlineStroke:"#ffffff", subline:"#ffffff", logo:"#ffed5b" },
-		  hacken:      { bg:"#ffffff", headlineFill:"#1d519b", headlineStroke:"#ffd30f", subline:"#1d519b", logo:"#1d519b" },
+		  lag1:  { bg:"#c92b2e", headlineFill:"#ffffff", headlineStroke:"#124a97", subline:"#ffffff", logo:"#ffffff" },
+		  lag2:  { bg:"#005fab", headlineFill:"#e83136", headlineStroke:"#ffdd00", subline:"#ffffff", logo:"#ffdd00" },
+		  lag3:  { bg:"#cc2a30", headlineFill:"#ffffff", headlineStroke:"#00573f", subline:"#ffffff", logo:"#ffffff" },
+		  lag4:  { bg:"#000000", headlineFill:"#e72a30", headlineStroke:"#ffcc00", subline:"#ffffff", logo:"#ffcc00" },
+		  lag5:  { bg:"#1e402f", headlineFill:"#038e53", headlineStroke:"#ffffff", subline:"#ffffff", logo:"#d9ab49" },
+		  lag6:  { bg:"#122145", headlineFill:"#ffd800", headlineStroke:"#ffffff", subline:"#ffffff", logo:"#ffed5b" },
+		  lag7:  { bg:"#ffffff", headlineFill:"#1d519b", headlineStroke:"#ffd30f", subline:"#1d519b", logo:"#1d519b" },
+		  lag8:  { bg:"#1b3249", headlineFill:"#c81f25", headlineStroke:"#ffffff", subline:"#ffffff", logo:"#ffffff" },
+		  lag9:  { bg:"#c62419", headlineFill:"#000000", headlineStroke:"#fac624", subline:"#ffffff", logo:"#fac624" },
+		  lag10: { bg:"#000000", headlineFill:"#fe0027", headlineStroke:"#ffffff", subline:"#ffffff", logo:"#fe0027" },
+		  lag11: { bg:"#268c5b", headlineFill:"#ffffff", headlineStroke:"#d32e32", subline:"#ffffff", logo:"#d32e32" },
+		  lag12: { bg:"#000000", headlineFill:"#ffc324", headlineStroke:"#ffffff", subline:"#ffffff", logo:"#ffc324" },
+		  lag13: { bg:"#5c6d74", headlineFill:"#5c6d74", headlineStroke:"#fffc4d", subline:"#ffffff", logo:"#fffc4d" },
+		  lag14: { bg:"#d51635", headlineFill:"#d51635", headlineStroke:"#ffffff", subline:"#ffffff", logo:"#000000" },
+		  lag15: { bg:"#173777", headlineFill:"#ffffff", headlineStroke:"#f37835", subline:"#ffffff", logo:"#b4975f" },
 		};
 		
 		/* ==========
@@ -280,75 +293,69 @@ if (reversed == null) { reversed = false; }
 		  }
 		};
 		
-		// Union-bounds i förälderns koordinatsystem (med barns transform)
+		// Union-bounds i förälderns koordinatsystem
 		function getTransformedChildrenBounds(container){
 		  if (!container || !container.children || !container.children.length) return null;
-		  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
-		  let found=false;
-		
+		  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity, found=false;
 		  for (let i=0;i<container.children.length;i++){
 		    const ch = container.children[i];
 		    let b = ch.getBounds() || ch.nominalBounds;
 		    if (!b) continue;
-		
-		    // transformera hörnen från child → container
 		    const tl = ch.localToLocal(b.x,           b.y,            container);
 		    const tr = ch.localToLocal(b.x+b.width,   b.y,            container);
 		    const bl = ch.localToLocal(b.x,           b.y+b.height,   container);
 		    const br = ch.localToLocal(b.x+b.width,   b.y+b.height,   container);
-		
 		    const xs = [tl.x,tr.x,bl.x,br.x];
 		    const ys = [tl.y,tr.y,bl.y,br.y];
-		
-		    minX = Math.min(minX, ...xs);
-		    minY = Math.min(minY, ...ys);
-		    maxX = Math.max(maxX, ...xs);
-		    maxY = Math.max(maxY, ...ys);
+		    minX = Math.min(minX, ...xs); minY = Math.min(minY, ...ys);
+		    maxX = Math.max(maxX, ...xs); maxY = Math.max(maxY, ...ys);
 		    found = true;
 		  }
 		  if (!found) return null;
 		  return { x:minX, y:minY, width:(maxX-minX), height:(maxY-minY) };
 		}
 		
-		// Centrera ett MC horisontellt med regY=topp
-		function centerMC(mc, centerX, topY) {
-		  if (!mc) return;
-		  // ta bounds från objektet självt (för vektor-headline) eller dess barn
+		/* ==========
+		   Headline: position + skala
+		   ========== */
+		function layoutHeadline(mc, topY, scale){
+		  if (!mc) return {height:0};
+		  // ta bounds (före skala)
 		  let b = mc.getBounds() || mc.nominalBounds || getTransformedChildrenBounds(mc);
 		  if (!b) { mc.setBounds(0,0,100,40); b = mc.getBounds(); }
+		  // reg till center-top
 		  mc.regX = b.x + b.width/2;
 		  mc.regY = b.y;
-		  mc.x = centerX;
+		  // skala
+		  mc.scaleX = mc.scaleY = (scale || 1);
+		  // placera
+		  mc.x = DESIGN_W/2;
 		  mc.y = topY;
-		  mc.scaleX = mc.scaleY = 1;
-		  mc.rotation = 0; mc.skewX = mc.skewY = 0;
+		  // returnera visuella höjden efter skala (för att kunna placera subline)
+		  return { height: b.height * mc.scaleY };
 		}
 		
 		/* ==========
-		   Subline: text, storlek, centrerad
+		   Subline: text, storlek, centrering
 		   ========== */
 		if (hasSubline) {
-		  // fontstorlek ställer du här:
-		  this.subline.txt.font = "18px 'CircularXX Medium'";
+		  this.subline.txt.font = "18px 'CircularXX Medium'"; // ← fontstorlek här
 		  this.subline.txt.text =
 		    "Är du en schysst byggare\n" +
 		    "är vår klubb också din klubb.\n" +
 		    "Du kommer aldrig att stå ensam.";
-		  // nollställ ev. tidigare transform på containern
-		  this.subline.scaleX = this.subline.scaleY = 1;
-		  this.subline.rotation = 0; this.subline.skewX = this.subline.skewY = 0;
-		  this.subline.regX = 0; this.subline.regY = 0;
-		
-		  // centrering: själva Text-objektet får x=0 + textAlign=center
 		  this.subline.txt.textAlign = "center";
 		  this.subline.txt.textBaseline = "top";
 		  this.subline.txt.x = 0;
 		  this.subline.txt.lineWidth = Math.round(DESIGN_W * 0.9);
 		  this.subline.txt.lineHeight = 18;
 		
-		  // placera containern i mitten topp-Y
+		  // nollställ container-transform + centrera container
+		  this.subline.scaleX = this.subline.scaleY = 1;
+		  this.subline.rotation = 0; this.subline.skewX = this.subline.skewY = 0;
+		  this.subline.regX = 0; this.subline.regY = 0;
 		  this.subline.x = DESIGN_W/2;
-		  this.subline.y = Math.round(DESIGN_H*0.17) + 100;
+		  // y sätts efter att vi lagt rubriken (i applyTeam), så den hamnar under rubriken
 		}
 		
 		/* ==========
@@ -358,7 +365,6 @@ if (reversed == null) { reversed = false; }
 		  this.logoGroup = new createjs.Container();
 		  this.addChild(this.logoGroup); // överst
 		}
-		// rensa och lägg in din logo-instans om den finns
 		this.logoGroup.removeAllChildren();
 		if (this.logo) {
 		  this.logo.visible = true;
@@ -370,14 +376,13 @@ if (reversed == null) { reversed = false; }
 		  warn("Ingen instans 'logo' hittad på root.");
 		}
 		
-		// valfri debugram för loggans bounds
 		if (!this.logoDebug) {
 		  this.logoDebug = new createjs.Shape();
 		  this.addChild(this.logoDebug);
 		}
 		
 		/* ==========
-		   Positionera logga (höjd, maxbredd, förankring)
+		   Positionera logga
 		   ========== */
 		this.positionLogo = ({
 		  anchor      = "bottomCenter",
@@ -390,11 +395,9 @@ if (reversed == null) { reversed = false; }
 		  const target = this.logoGroup;
 		  if (!target || !target.numChildren) return;
 		
-		  // bounds i gruppens lokala system, med hänsyn till barns transform
 		  let b = target.getBounds() || target.nominalBounds || getTransformedChildrenBounds(target);
 		  if (!b) { target.setBounds(0,0,300,80); b = target.getBounds(); }
 		
-		  // skala efter höjd men respektera maxbredd
 		  const sH = (heightPx  != null) ? (heightPx  / b.height) : Infinity;
 		  const sW = (maxWidthPx!= null) ? (maxWidthPx/ b.width ) : Infinity;
 		  let s = Math.min(sH, sW);
@@ -403,11 +406,9 @@ if (reversed == null) { reversed = false; }
 		
 		  const halfW = (b.width*s)/2, halfH = (b.height*s)/2;
 		
-		  // reg=center i gruppens bounds
 		  target.regX = b.x + b.width/2;
 		  target.regY = b.y + b.height/2;
 		
-		  // placering
 		  let x = DESIGN_W/2, y = DESIGN_H/2;
 		  switch (anchor) {
 		    case "topLeft":      x = pad + halfW;               y = pad + halfH;               break;
@@ -427,24 +428,18 @@ if (reversed == null) { reversed = false; }
 		
 		  target.x = x; target.y = y;
 		
-		  // debugram runt beräknade bounds (i scenens koordinater)
 		  this.logoDebug.graphics.clear();
 		  if (DEBUG_BOUNDS) {
-		    // fyra hörn i målkoordinater (target → stage/root)
 		    const tl = target.localToLocal(b.x,           b.y,            this);
 		    const tr = target.localToLocal(b.x+b.width,   b.y,            this);
 		    const bl = target.localToLocal(b.x,           b.y+b.height,   this);
 		    const br = target.localToLocal(b.x+b.width,   b.y+b.height,   this);
-		
 		    const xs = [tl.x,tr.x,bl.x,br.x].sort((a,b)=>a-b);
 		    const ys = [tl.y,tr.y,bl.y,br.y].sort((a,b)=>a-b);
 		    const minX = xs[0], maxX = xs[3], minY = ys[0], maxY = ys[3];
-		
 		    this.logoDebug.graphics
-		      .setStrokeStyle(1)
-		      .beginStroke("#00FF88")
-		      .drawRect(minX, minY, maxX-minX, maxY-minY)
-		      .endStroke();
+		      .setStrokeStyle(1).beginStroke("#00FF88")
+		      .drawRect(minX, minY, maxX-minX, maxY-minY).endStroke();
 		  }
 		};
 		
@@ -458,23 +453,24 @@ if (reversed == null) { reversed = false; }
 		  // BG
 		  this.bg.graphics.clear().beginFill(s.bg).drawRect(0,0,DESIGN_W,DESIGN_H);
 		
-		  // Rubrik (vektor: fill + stroke)
+		  // Headline (vektor: fill + stroke) + SKALA
+		  let headlineHeight = 0;
 		  if (hasHeadlineSep) {
 		    const hf = this.headlineSep.headlineFill;
 		    const hs = this.headlineSep.headlineStroke;
 		    if (hs) this.setMCColor(hs, s.headlineStroke || s.headlineFill || "#FFFFFF");
 		    if (hf) this.setMCColor(hf, s.headlineFill   || "#FFFFFF");
-		    centerMC(this.headlineSep, DESIGN_W/2, Math.round(DESIGN_H*0.17));
+		    const met = layoutHeadline(this.headlineSep, HEADLINE_TOP_Y, HEADLINE_SCALE);
+		    headlineHeight = met.height || 0;
 		  } else {
 		    warn("Saknar instansen 'headlineSep' (MC med headlineFill/headlineStroke).");
 		  }
 		
-		  // Subline
+		  // Subline under rubriken
 		  if (hasSubline) {
 		    this.subline.txt.color = s.subline || "#FFFFFF";
-		    // (x,y) sattes tidigare men vi kör igen för säkerhets skull:
 		    this.subline.x = DESIGN_W/2;
-		    this.subline.y = Math.round(DESIGN_H*0.17) + 135;
+		    this.subline.y = HEADLINE_TOP_Y + headlineHeight + SUBLINE_GAP;
 		  }
 		
 		  // Logga: färg + placering
